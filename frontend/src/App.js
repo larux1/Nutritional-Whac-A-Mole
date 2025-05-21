@@ -1437,6 +1437,7 @@ function Highscores() {
       </div>
     </div>
   );
+}
 
 function NotFound() {
   return <div className="p-8">
