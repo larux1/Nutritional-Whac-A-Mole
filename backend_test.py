@@ -201,10 +201,21 @@ def run_tests():
     suite = unittest.TestSuite()
     
     # Add tests in order
-    tester = GameAPITester()
-    for method_name in dir(tester):
-        if method_name.startswith('test_'):
-            suite.addTest(GameAPITester(method_name))
+    test_methods = [
+        'test_01_register_user',
+        'test_02_login',
+        'test_03_get_user_profile',
+        'test_04_get_whac_deficiencies',
+        'test_05_get_paris_metro_stations',
+        'test_06_submit_whac_score',
+        'test_07_submit_paris_metro_score',
+        'test_08_check_paris_metro_route',
+        'test_09_get_highscores',
+        'test_10_get_user_scores'
+    ]
+    
+    for method_name in test_methods:
+        suite.addTest(GameAPITester(method_name))
     
     # Run the tests
     runner = unittest.TextTestRunner(verbosity=2)
