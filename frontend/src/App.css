@@ -1,38 +1,118 @@
-.App {
-    text-align: center;
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+.whac-deficiency {
+  animation: pop 0.3s ease-out;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+@keyframes hit {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: rotate(10deg) scale(0.7);
+  }
+  100% {
+    transform: rotate(0) scale(0);
+    opacity: 0;
+  }
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.hit-animation {
+  animation: hit 0.3s ease-out forwards;
 }
 
-.App-link {
-    color: #61dafb;
+@keyframes score-popup {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.score-popup {
+  animation: score-popup 1s ease-out forwards;
+  position: absolute;
+  pointer-events: none;
+}
+
+.spaghetti-plate {
+  position: relative;
+  background-color: #f9f9f9;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* For Paris Metro Game */
+.metro-station {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.metro-station:hover {
+  filter: brightness(1.2);
+  transform: scale(1.1);
+}
+
+.metro-station.selected {
+  filter: brightness(1.5);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px yellow, 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+.metro-line {
+  stroke-width: 5;
+  transition: all 0.3s;
+}
+
+.metro-line.highlighted {
+  stroke-width: 8;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+}
+
+/* Responsive helpers */
+@media (max-width: 640px) {
+  .spaghetti-plate {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@media (min-width: 641px) {
+  .spaghetti-plate {
+    width: 450px;
+    height: 450px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .spaghetti-plate {
+    width: 600px;
+    height: 600px;
+  }
 }
