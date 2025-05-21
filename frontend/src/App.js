@@ -737,11 +737,510 @@ function WhacADeficiency() {
   );
 }
 
+// Paris Metro Game
 function ParisMetro() {
-  return <div className="p-8">
-    <h1 className="text-3xl font-bold mb-4">Paris Metro Game</h1>
-    <p>Coming soon...</p>
-  </div>;
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [stations, setStations] = useState({});
+  const [selectedStations, setSelectedStations] = useState([]);
+  const [route, setRoute] = useState([]);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [result, setResult] = useState(null);
+  const [difficulty, setDifficulty] = useState('normal');
+  const [inputMethod, setInputMethod] = useState('map');
+  const [stationFrom, setStationFrom] = useState('');
+  const [stationTo, setStationTo] = useState('');
+  const mapRef = useRef(null);
+  
+  // Fetch stations from backend
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const response = await axios.get(`${API}/paris-metro/stations`);
+        setStations(response.data);
+      } catch (error) {
+        console.error("Error fetching stations:", error);
+      }
+    };
+    
+    fetchStations();
+  }, []);
+  
+  // Game timer
+  useEffect(() => {
+    if (!gameStarted || gameOver) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          checkRoute(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [gameStarted, gameOver]);
+  
+  // Start the game
+  const startGame = () => {
+    // Reset state
+    setGameStarted(true);
+    setGameOver(false);
+    setSelectedStations([]);
+    setRoute([]);
+    setScore(0);
+    setResult(null);
+    
+    // Set time based on difficulty
+    setTimeLeft(
+      difficulty === 'easy' ? 45 : 
+      difficulty === 'normal' ? 30 : 
+      20
+    );
+    
+    // Pick random stations for challenge
+    const stationIds = Object.keys(stations);
+    if (stationIds.length >= 2) {
+      const station1 = stationIds[Math.floor(Math.random() * stationIds.length)];
+      
+      // Make sure we pick a different second station
+      let station2;
+      do {
+        station2 = stationIds[Math.floor(Math.random() * stationIds.length)];
+      } while (station2 === station1);
+      
+      setSelectedStations([station1, station2]);
+    }
+  };
+  
+  // Handle station selection on the map
+  const selectStation = (stationId) => {
+    if (!gameStarted || gameOver) return;
+    
+    setRoute(prev => {
+      // If this station is already the last one in the route, remove it
+      if (prev.length > 0 && prev[prev.length - 1] === stationId) {
+        return prev.slice(0, -1);
+      }
+      
+      // Add the station to the route
+      return [...prev, stationId];
+    });
+  };
+  
+  // Check if the proposed route is valid
+  const checkRoute = async (timeUp = false) => {
+    if (route.length < 2) {
+      setResult({
+        valid: false,
+        message: "Route must have at least two stations"
+      });
+      return;
+    }
+    
+    try {
+      const response = await axios.post(`${API}/paris-metro/check-route`, route);
+      
+      // Update the result
+      setResult(response.data);
+      
+      // If the route is valid, update the score and end the game
+      if (response.data.valid) {
+        setScore(response.data.score);
+        
+        // Submit score to backend
+        try {
+          await axios.post(
+            `${API}/scores`, 
+            {
+              game_type: "paris_metro",
+              score: response.data.score,
+              time_taken: difficulty === 'easy' ? 45 - timeLeft : 
+                         difficulty === 'normal' ? 30 - timeLeft : 
+                         20 - timeLeft
+            },
+            {
+              headers: { 
+                Authorization: `Bearer ${localStorage.getItem("token")}` 
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error saving score:", error);
+        }
+      }
+      
+      // End the game
+      setGameOver(true);
+      setGameStarted(false);
+      
+    } catch (error) {
+      console.error("Error checking route:", error);
+      setResult({
+        valid: false,
+        message: "Error checking route"
+      });
+    }
+  };
+  
+  // Handle form submission for text input method
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!stationFrom || !stationTo) {
+      setResult({
+        valid: false,
+        message: "Please select both departure and arrival stations"
+      });
+      return;
+    }
+    
+    // Convert station names to IDs
+    const fromId = Object.keys(stations).find(
+      id => stations[id].name.toLowerCase() === stationFrom.toLowerCase()
+    );
+    
+    const toId = Object.keys(stations).find(
+      id => stations[id].name.toLowerCase() === stationTo.toLowerCase()
+    );
+    
+    if (!fromId || !toId) {
+      setResult({
+        valid: false,
+        message: "One or both stations not found"
+      });
+      return;
+    }
+    
+    // Set the route and check it
+    setRoute([fromId, toId]);
+    setTimeout(() => checkRoute(), 100);
+  };
+  
+  return (
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-blue-900 to-purple-900 p-6">
+      <h1 className="text-4xl font-bold text-white mb-4">Paris Fast-Route Challenge</h1>
+      
+      {/* Game Controls */}
+      <div className="bg-white/10 backdrop-blur-lg p-4 rounded-xl w-full max-w-4xl mb-6">
+        <div className="flex flex-wrap justify-between items-center">
+          <div className="text-white">
+            {selectedStations.length === 2 && stations[selectedStations[0]] && stations[selectedStations[1]] && (
+              <div>
+                <div className="text-xl font-bold">Find the fastest route:</div>
+                <div>From: {stations[selectedStations[0]].name}</div>
+                <div>To: {stations[selectedStations[1]].name}</div>
+              </div>
+            )}
+            
+            {gameStarted && (
+              <div className="mt-2">Time left: {timeLeft} seconds</div>
+            )}
+            
+            {gameOver && score > 0 && (
+              <div className="text-xl font-bold mt-2">Score: {score}</div>
+            )}
+          </div>
+          
+          {!gameStarted && !gameOver && (
+            <div className="flex flex-wrap gap-3 mt-2 md:mt-0">
+              <select 
+                value={difficulty}
+                onChange={e => setDifficulty(e.target.value)}
+                className="bg-white/20 border border-white/30 rounded px-3 py-2 text-white"
+              >
+                <option value="easy">Easy (45s)</option>
+                <option value="normal">Normal (30s)</option>
+                <option value="hard">Hard (20s)</option>
+              </select>
+              
+              <select 
+                value={inputMethod}
+                onChange={e => setInputMethod(e.target.value)}
+                className="bg-white/20 border border-white/30 rounded px-3 py-2 text-white"
+              >
+                <option value="map">Map Selection</option>
+                <option value="text">Text Input</option>
+              </select>
+              
+              <button 
+                onClick={startGame}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition"
+              >
+                Start Challenge
+              </button>
+            </div>
+          )}
+          
+          {gameStarted && inputMethod === 'map' && (
+            <div className="flex flex-wrap gap-3 mt-2 md:mt-0">
+              <button 
+                onClick={() => checkRoute()}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition"
+              >
+                Submit Route
+              </button>
+              
+              <button 
+                onClick={() => setRoute([])}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-bold transition"
+              >
+                Clear Route
+              </button>
+            </div>
+          )}
+          
+          {gameOver && (
+            <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+              <button 
+                onClick={startGame}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition"
+              >
+                New Challenge
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Result Display */}
+      {result && (
+        <div className={`bg-white/10 backdrop-blur-lg p-4 rounded-xl w-full max-w-4xl mb-6 ${
+          result.valid ? 'border-2 border-green-500' : 'border-2 border-red-500'
+        }`}>
+          <div className="text-white">
+            <div className="text-xl font-bold mb-2">
+              {result.valid ? "Route Valid!" : "Route Invalid!"}
+            </div>
+            
+            {result.message && (
+              <div className="mb-3">{result.message}</div>
+            )}
+            
+            {result.valid && (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <div className="font-bold">Your Route Time:</div>
+                    <div>{result.route_time} minutes</div>
+                  </div>
+                  <div>
+                    <div className="font-bold">Optimal Route Time:</div>
+                    <div>{result.optimal_time} minutes</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="font-bold mb-1">Optimal Route:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {result.optimal_route.map((stationId, index) => (
+                      <span key={stationId} className="flex items-center">
+                        {stations[stationId]?.name}
+                        {index < result.optimal_route.length - 1 && (
+                          <span className="mx-1">→</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Game Board - Map or Text Input */}
+      <div className="bg-white/10 backdrop-blur-lg p-4 rounded-xl w-full max-w-4xl mb-6">
+        {inputMethod === 'map' ? (
+          <div className="relative" ref={mapRef}>
+            {/* Metro Map Background */}
+            <div 
+              className="rounded-lg overflow-hidden relative"
+              style={{
+                backgroundImage: `url(https://images.unsplash.com/photo-1736117705678-4d7d49850205)`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                minHeight: "500px"
+              }}
+            >
+              {/* Station Markers */}
+              {Object.entries(stations).map(([stationId, station]) => {
+                // Random positions for demo, would be replaced with actual coordinates in a real implementation
+                const top = 10 + Math.random() * 80;
+                const left = 10 + Math.random() * 80;
+                
+                const isSelected = selectedStations.includes(stationId);
+                const isInRoute = route.includes(stationId);
+                const isStart = route.length > 0 && route[0] === stationId;
+                const isEnd = route.length > 1 && route[route.length - 1] === stationId;
+                
+                return (
+                  <div
+                    key={stationId}
+                    className={`absolute w-6 h-6 rounded-full flex items-center justify-center cursor-pointer metro-station ${
+                      isSelected ? 'bg-yellow-500 shadow-lg' : 
+                      isInRoute ? 'bg-green-500 shadow-lg' : 
+                      'bg-gray-200 hover:bg-gray-300'
+                    } ${isInRoute ? 'selected' : ''}`}
+                    style={{
+                      top: `${top}%`,
+                      left: `${left}%`,
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: isInRoute ? 10 : 5
+                    }}
+                    onClick={() => selectStation(stationId)}
+                  >
+                    {isStart && <div className="absolute -top-6 text-white font-bold">Start</div>}
+                    {isEnd && <div className="absolute -bottom-6 text-white font-bold">End</div>}
+                  </div>
+                );
+              })}
+              
+              {/* Route Lines */}
+              {route.length > 1 && (
+                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: 2 }}>
+                  {route.map((stationId, index) => {
+                    if (index === 0) return null;
+                    
+                    const prevStationId = route[index - 1];
+                    
+                    // Get position of stations (randomly generated in this demo)
+                    const stations = document.querySelectorAll('.metro-station');
+                    const prevStation = Array.from(stations).find(
+                      el => el.getAttribute('key') === prevStationId
+                    );
+                    const currStation = Array.from(stations).find(
+                      el => el.getAttribute('key') === stationId
+                    );
+                    
+                    if (!prevStation || !currStation) return null;
+                    
+                    const prevRect = prevStation.getBoundingClientRect();
+                    const currRect = currStation.getBoundingClientRect();
+                    const mapRect = mapRef.current.getBoundingClientRect();
+                    
+                    const x1 = prevRect.left + prevRect.width / 2 - mapRect.left;
+                    const y1 = prevRect.top + prevRect.height / 2 - mapRect.top;
+                    const x2 = currRect.left + currRect.width / 2 - mapRect.left;
+                    const y2 = currRect.top + currRect.height / 2 - mapRect.top;
+                    
+                    return (
+                      <line
+                        key={`${prevStationId}-${stationId}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        className="metro-line highlighted"
+                        stroke="#22c55e"
+                        strokeLinecap="round"
+                      />
+                    );
+                  })}
+                </svg>
+              )}
+            </div>
+            
+            {/* Selected Route Display */}
+            {route.length > 0 && (
+              <div className="mt-4 p-3 bg-white/20 rounded-lg">
+                <div className="text-white font-bold mb-2">Your Route:</div>
+                <div className="flex flex-wrap gap-2 text-white">
+                  {route.map((stationId, index) => (
+                    <span key={stationId} className="flex items-center">
+                      {stations[stationId]?.name}
+                      {index < route.length - 1 && (
+                        <span className="mx-1">→</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleFormSubmit} className="text-white">
+            <div className="text-xl font-bold mb-4">Enter your route:</div>
+            
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block mb-2">From Station:</label>
+                <input
+                  type="text"
+                  value={stationFrom}
+                  onChange={e => setStationFrom(e.target.value)}
+                  list="station-list"
+                  className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white"
+                  placeholder="Start typing station name..."
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block mb-2">To Station:</label>
+                <input
+                  type="text"
+                  value={stationTo}
+                  onChange={e => setStationTo(e.target.value)}
+                  list="station-list"
+                  className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white"
+                  placeholder="Start typing station name..."
+                  required
+                />
+              </div>
+            </div>
+            
+            <button 
+              type="submit"
+              disabled={!gameStarted || gameOver}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition disabled:opacity-50"
+            >
+              Submit Route
+            </button>
+            
+            {/* Datalist for station autocomplete */}
+            <datalist id="station-list">
+              {Object.values(stations).map(station => (
+                <option key={station.name} value={station.name} />
+              ))}
+            </datalist>
+          </form>
+        )}
+      </div>
+      
+      {/* Instructions */}
+      <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl w-full max-w-4xl text-white">
+        <h2 className="text-2xl font-bold mb-3">How to Play</h2>
+        <p className="mb-3">Find the fastest route between the two highlighted stations on the Paris metro map.</p>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-xl font-bold mb-2">Map Selection Mode:</h3>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Click on stations to create your route</li>
+              <li>Click a station again to remove it from the end of your route</li>
+              <li>Click "Submit Route" when you're ready</li>
+              <li>The closer your route time is to the optimal time, the higher your score!</li>
+            </ol>
+          </div>
+          
+          <div>
+            <h3 className="text-xl font-bold mb-2">Text Input Mode:</h3>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Type the names of your starting and ending stations</li>
+              <li>Use the autocomplete to find stations</li>
+              <li>Click "Submit Route" when you're ready</li>
+              <li>The system will evaluate the direct connection between the two stations</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function Highscores() {
