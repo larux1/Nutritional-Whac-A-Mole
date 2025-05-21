@@ -202,9 +202,9 @@ def run_tests():
     
     # Add tests in order
     tester = GameAPITester()
-    for i in range(1, 11):
-        test_name = f"test_{i:02d}_" + getattr(GameAPITester, f"test_{i:02d}_").__doc__.split()[1].lower()
-        suite.addTest(GameAPITester(test_name))
+    for method_name in dir(tester):
+        if method_name.startswith('test_'):
+            suite.addTest(GameAPITester(method_name))
     
     # Run the tests
     runner = unittest.TextTestRunner(verbosity=2)
