@@ -1244,11 +1244,199 @@ function ParisMetro() {
 }
 
 function Highscores() {
-  return <div className="p-8">
-    <h1 className="text-3xl font-bold mb-4">Highscores</h1>
-    <p>Coming soon...</p>
-  </div>;
-}
+  const [activeGame, setActiveGame] = useState('whac_a_deficiency');
+  const [highscores, setHighscores] = useState([]);
+  const [userScores, setUserScores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  
+  // Fetch highscores and user scores
+  useEffect(() => {
+    const fetchScores = async () => {
+      setLoading(true);
+      try {
+        // Fetch highscores for the selected game
+        const highscoresResponse = await axios.get(
+          `${API}/scores/highscores/${activeGame}`,
+          {
+            headers: { 
+              Authorization: `Bearer ${localStorage.getItem("token")}` 
+            }
+          }
+        );
+        
+        setHighscores(highscoresResponse.data);
+        
+        // Fetch user's personal scores
+        const userScoresResponse = await axios.get(
+          `${API}/scores/user`,
+          {
+            headers: { 
+              Authorization: `Bearer ${localStorage.getItem("token")}` 
+            }
+          }
+        );
+        
+        // Filter scores for the active game
+        const filteredScores = userScoresResponse.data
+          .filter(score => score.game_type === activeGame)
+          .sort((a, b) => b.score - a.score);
+        
+        setUserScores(filteredScores);
+      } catch (error) {
+        console.error("Error fetching scores:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchScores();
+  }, [activeGame, user]);
+  
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-indigo-900 p-6">
+      <div className="container mx-auto">
+        <h1 className="text-4xl font-bold text-white mb-8 text-center">Highscores</h1>
+        
+        {/* Game selector */}
+        <div className="bg-white/10 backdrop-blur-lg p-4 rounded-xl mb-8 flex justify-center">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
+                activeGame === 'whac_a_deficiency'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+              onClick={() => setActiveGame('whac_a_deficiency')}
+            >
+              Whac-A-Deficiency
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
+                activeGame === 'paris_metro'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+              onClick={() => setActiveGame('paris_metro')}
+            >
+              Paris Fast-Route
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Global Highscores */}
+          <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {activeGame === 'whac_a_deficiency' ? 'Whac-A-Deficiency' : 'Paris Fast-Route'} - Global Highscores
+            </h2>
+            
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+              </div>
+            ) : highscores.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-white">
+                  <thead className="border-b border-white/20">
+                    <tr>
+                      <th className="py-3 px-4 text-left">Rank</th>
+                      <th className="py-3 px-4 text-left">Player</th>
+                      <th className="py-3 px-4 text-left">Score</th>
+                      <th className="py-3 px-4 text-left">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {highscores.map((score, index) => (
+                      <tr key={score.id} className="border-b border-white/10">
+                        <td className="py-3 px-4">
+                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+                        </td>
+                        <td className="py-3 px-4">
+                          {score.username}
+                          {score.company && (
+                            <span className="text-xs ml-2 opacity-70">({score.company})</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-bold">{score.score}</td>
+                        <td className="py-3 px-4 text-sm opacity-70">{formatDate(score.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-white text-center py-8">
+                No highscores available yet. Be the first to play!
+              </div>
+            )}
+          </div>
+          
+          {/* Your Personal Scores */}
+          <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl">
+            <h2 className="text-2xl font-bold text-white mb-4">Your Personal Best Scores</h2>
+            
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+              </div>
+            ) : userScores.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-white">
+                  <thead className="border-b border-white/20">
+                    <tr>
+                      <th className="py-3 px-4 text-left">Rank</th>
+                      <th className="py-3 px-4 text-left">Score</th>
+                      <th className="py-3 px-4 text-left">Time Taken</th>
+                      <th className="py-3 px-4 text-left">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userScores.map((score, index) => (
+                      <tr key={score.id} className="border-b border-white/10">
+                        <td className="py-3 px-4">
+                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
+                        </td>
+                        <td className="py-3 px-4 font-bold">{score.score}</td>
+                        <td className="py-3 px-4">
+                          {score.time_taken ? `${score.time_taken}s` : 'N/A'}
+                        </td>
+                        <td className="py-3 px-4 text-sm opacity-70">{formatDate(score.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-white text-center py-8">
+                You haven't played {activeGame === 'whac_a_deficiency' ? 'Whac-A-Deficiency' : 'Paris Fast-Route'} yet!
+              </div>
+            )}
+            
+            <div className="mt-6 flex justify-center">
+              <Link 
+                to={activeGame === 'whac_a_deficiency' ? '/whac-a-deficiency' : '/paris-metro'}
+                className={`px-6 py-3 rounded-lg font-bold transition ${
+                  activeGame === 'whac_a_deficiency' 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                Play {activeGame === 'whac_a_deficiency' ? 'Whac-A-Deficiency' : 'Paris Fast-Route'}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
 function NotFound() {
   return <div className="p-8">
