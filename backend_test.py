@@ -59,6 +59,9 @@ class GameAPITester(unittest.TestCase):
         """Test getting user profile"""
         print("\n🔍 Testing get user profile")
         
+        if not self.token:
+            self.test_02_login()
+            
         response = requests.get(
             f"{self.base_url}/users/me",
             headers={"Authorization": f"Bearer {self.token}"}
