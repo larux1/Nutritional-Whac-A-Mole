@@ -231,7 +231,9 @@ async def get_highscores(game_type: str):
 
 @api_router.get("/scores/user", response_model=List[GameScore])
 async def get_user_scores(current_user: User = Depends(get_current_user)):
+    print(f"Fetching scores for user: {current_user.username}")
     scores = await db.scores.find({"user_id": current_user.id}).to_list(100)
+    print(f"Found {len(scores)} scores for user")
     return [GameScore(**score) for score in scores]
 
 # Whac-A-Deficiency Game Routes
