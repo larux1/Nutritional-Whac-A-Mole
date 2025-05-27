@@ -1216,24 +1216,85 @@ function ParisMetro() {
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-blue-900 to-purple-900 p-6">
       <h1 className="text-4xl font-bold text-white mb-4">Paris Fast-Route Challenge</h1>
       
+      {/* Tutorial Overlay */}
+      {showTutorial && !gameStarted && !gameOver && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/70">
+          <div className="bg-white/20 backdrop-blur-lg p-8 rounded-xl max-w-2xl text-white">
+            <h2 className="text-3xl font-bold mb-4">Comment jouer</h2>
+            
+            <div className="space-y-4 mb-6">
+              <p className="text-xl">
+                <span className="font-bold text-yellow-300">Objectif :</span> Trouvez le chemin le plus rapide entre deux stations du métro parisien !
+              </p>
+              
+              <div className="flex flex-col space-y-2">
+                <p className="font-bold text-green-300">1. Choisissez votre mode d'entrée :</p>
+                <p>- <span className="font-bold">Carte</span> : Cliquez sur les stations dans l'ordre pour créer votre itinéraire</p>
+                <p>- <span className="font-bold">Texte</span> : Entrez les noms des stations de départ et d'arrivée</p>
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <p className="font-bold text-green-300">2. Créez votre itinéraire :</p>
+                <p>- Planifiez votre trajet en passant par les stations qui vous semblent optimales</p>
+                <p>- Pour supprimer une station, cliquez à nouveau dessus</p>
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <p className="font-bold text-green-300">3. Soumettez votre itinéraire :</p>
+                <p>- Une fois votre itinéraire complet, cliquez sur "Soumettre l'itinéraire"</p>
+                <p>- Nous comparerons votre itinéraire avec le plus optimal</p>
+                <p>- Votre score dépendra de l'efficacité de votre itinéraire !</p>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <button 
+                onClick={() => setShowTutorial(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold transition"
+              >
+                J'ai compris, commencer !
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Game Controls */}
       <div className="bg-white/10 backdrop-blur-lg p-4 rounded-xl w-full max-w-4xl mb-6">
         <div className="flex flex-wrap justify-between items-center">
           <div className="text-white">
             {selectedStations.length === 2 && stations[selectedStations[0]] && stations[selectedStations[1]] && (
               <div>
-                <div className="text-xl font-bold">Find the fastest route:</div>
-                <div>From: {stations[selectedStations[0]].name}</div>
-                <div>To: {stations[selectedStations[1]].name}</div>
+                <div className="text-xl font-bold">Trouvez le chemin le plus rapide :</div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-yellow-500 text-black px-2 py-1 rounded font-bold">Départ :</span> 
+                  <span>{stations[selectedStations[0]].name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-green-500 text-black px-2 py-1 rounded font-bold">Arrivée :</span> 
+                  <span>{stations[selectedStations[1]].name}</span>
+                </div>
               </div>
             )}
             
             {gameStarted && (
-              <div className="mt-2">Time left: {timeLeft} seconds</div>
+              <div className="mt-2 font-bold">
+                <span className="mr-2">Temps restant:</span>
+                <span className={`${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+                  {timeLeft} secondes
+                </span>
+              </div>
             )}
             
             {gameOver && score > 0 && (
               <div className="text-xl font-bold mt-2">Score: {score}</div>
+            )}
+            
+            {/* Niveau actuel */}
+            {!gameStarted && (
+              <div className="mt-2">
+                <span className="font-bold text-purple-300">Niveau {level}</span>
+              </div>
             )}
           </div>
           
@@ -1244,9 +1305,9 @@ function ParisMetro() {
                 onChange={e => setDifficulty(e.target.value)}
                 className="bg-white/20 border border-white/30 rounded px-3 py-2 text-white"
               >
-                <option value="easy">Easy (45s)</option>
+                <option value="easy">Facile (45s)</option>
                 <option value="normal">Normal (30s)</option>
-                <option value="hard">Hard (20s)</option>
+                <option value="hard">Difficile (20s)</option>
               </select>
               
               <select 
@@ -1254,15 +1315,22 @@ function ParisMetro() {
                 onChange={e => setInputMethod(e.target.value)}
                 className="bg-white/20 border border-white/30 rounded px-3 py-2 text-white"
               >
-                <option value="map">Map Selection</option>
-                <option value="text">Text Input</option>
+                <option value="map">Sélection sur carte</option>
+                <option value="text">Entrée textuelle</option>
               </select>
               
               <button 
                 onClick={startGame}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition"
               >
-                Start Challenge
+                Démarrer le défi
+              </button>
+              
+              <button 
+                onClick={() => setShowTutorial(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-bold transition"
+              >
+                Voir le tutoriel
               </button>
             </div>
           )}
@@ -1273,14 +1341,14 @@ function ParisMetro() {
                 onClick={() => checkRoute()}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition"
               >
-                Submit Route
+                Soumettre l'itinéraire
               </button>
               
               <button 
                 onClick={() => setRoute([])}
                 className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-bold transition"
               >
-                Clear Route
+                Effacer l'itinéraire
               </button>
             </div>
           )}
@@ -1291,11 +1359,22 @@ function ParisMetro() {
                 onClick={startGame}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition"
               >
-                New Challenge
+                Nouveau défi
               </button>
             </div>
           )}
         </div>
+        
+        {/* Feedback message */}
+        {feedbackMessage && (
+          <div className={`mt-4 p-3 rounded-lg text-white ${
+            feedbackType === 'success' ? 'bg-green-600/50' :
+            feedbackType === 'error' ? 'bg-red-600/50' :
+            'bg-blue-600/50'
+          }`}>
+            {feedbackMessage}
+          </div>
+        )}
       </div>
       
       {/* Result Display */}
@@ -1305,7 +1384,7 @@ function ParisMetro() {
         }`}>
           <div className="text-white">
             <div className="text-xl font-bold mb-2">
-              {result.valid ? "Route Valid!" : "Route Invalid!"}
+              {result.valid ? "Itinéraire valide !" : "Itinéraire invalide !"}
             </div>
             
             {result.message && (
@@ -1316,17 +1395,17 @@ function ParisMetro() {
               <>
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <div className="font-bold">Your Route Time:</div>
+                    <div className="font-bold">Votre temps de trajet :</div>
                     <div>{result.route_time} minutes</div>
                   </div>
                   <div>
-                    <div className="font-bold">Optimal Route Time:</div>
+                    <div className="font-bold">Temps de trajet optimal :</div>
                     <div>{result.optimal_time} minutes</div>
                   </div>
                 </div>
                 
                 <div>
-                  <div className="font-bold mb-1">Optimal Route:</div>
+                  <div className="font-bold mb-1">Itinéraire optimal :</div>
                   <div className="flex flex-wrap gap-2">
                     {result.optimal_route.map((stationId, index) => (
                       <span key={stationId} className="flex items-center">
@@ -1352,7 +1431,7 @@ function ParisMetro() {
             <div 
               className="rounded-lg overflow-hidden relative"
               style={{
-                backgroundImage: `url(https://images.unsplash.com/photo-1736117705678-4d7d49850205)`,
+                backgroundImage: `url(https://images.pexels.com/photos/6642542/pexels-photo-6642542.jpeg)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 minHeight: "500px"
@@ -1373,8 +1452,9 @@ function ParisMetro() {
                   <div
                     key={stationId}
                     className={`absolute w-6 h-6 rounded-full flex items-center justify-center cursor-pointer metro-station ${
-                      isSelected ? 'bg-yellow-500 shadow-lg' : 
-                      isInRoute ? 'bg-green-500 shadow-lg' : 
+                      isSelected && isStart ? 'bg-yellow-500 shadow-lg' : 
+                      isSelected && isEnd ? 'bg-green-500 shadow-lg' : 
+                      isInRoute ? 'bg-blue-500 shadow-lg' : 
                       'bg-gray-200 hover:bg-gray-300'
                     } ${isInRoute ? 'selected' : ''}`}
                     style={{
@@ -1385,8 +1465,8 @@ function ParisMetro() {
                     }}
                     onClick={() => selectStation(stationId)}
                   >
-                    {isStart && <div className="absolute -top-6 text-white font-bold">Start</div>}
-                    {isEnd && <div className="absolute -bottom-6 text-white font-bold">End</div>}
+                    {isStart && <div className="absolute -top-6 text-yellow-300 font-bold">Départ</div>}
+                    {isEnd && <div className="absolute -bottom-6 text-green-300 font-bold">Arrivée</div>}
                   </div>
                 );
               })}
@@ -1427,7 +1507,7 @@ function ParisMetro() {
                         x2={x2}
                         y2={y2}
                         className="metro-line highlighted"
-                        stroke="#22c55e"
+                        stroke="#3b82f6"
                         strokeLinecap="round"
                       />
                     );
@@ -1439,11 +1519,20 @@ function ParisMetro() {
             {/* Selected Route Display */}
             {route.length > 0 && (
               <div className="mt-4 p-3 bg-white/20 rounded-lg">
-                <div className="text-white font-bold mb-2">Your Route:</div>
+                <div className="text-white font-bold mb-2">Votre itinéraire :</div>
                 <div className="flex flex-wrap gap-2 text-white">
                   {route.map((stationId, index) => (
                     <span key={stationId} className="flex items-center">
-                      {stations[stationId]?.name}
+                      {index === 0 ? (
+                        <span className="bg-yellow-500 text-black px-2 py-1 rounded-lg text-sm font-bold mr-1">{stations[stationId]?.name}</span>
+                      ) : index === route.length - 1 ? (
+                        <span className="bg-green-500 text-black px-2 py-1 rounded-lg text-sm font-bold">{stations[stationId]?.name}</span>
+                      ) : (
+                        <>
+                          <span className="bg-blue-500 text-white px-2 py-1 rounded-lg text-sm">{stations[stationId]?.name}</span>
+                        </>
+                      )}
+                      
                       {index < route.length - 1 && (
                         <span className="mx-1">→</span>
                       )}
@@ -1455,31 +1544,31 @@ function ParisMetro() {
           </div>
         ) : (
           <form onSubmit={handleFormSubmit} className="text-white">
-            <div className="text-xl font-bold mb-4">Enter your route:</div>
+            <div className="text-xl font-bold mb-4">Entrez votre itinéraire :</div>
             
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block mb-2">From Station:</label>
+                <label className="block mb-2">Station de départ :</label>
                 <input
                   type="text"
                   value={stationFrom}
                   onChange={e => setStationFrom(e.target.value)}
                   list="station-list"
                   className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white"
-                  placeholder="Start typing station name..."
+                  placeholder="Commencez à taper le nom de la station..."
                   required
                 />
               </div>
               
               <div>
-                <label className="block mb-2">To Station:</label>
+                <label className="block mb-2">Station d'arrivée :</label>
                 <input
                   type="text"
                   value={stationTo}
                   onChange={e => setStationTo(e.target.value)}
                   list="station-list"
                   className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white"
-                  placeholder="Start typing station name..."
+                  placeholder="Commencez à taper le nom de la station..."
                   required
                 />
               </div>
@@ -1490,7 +1579,7 @@ function ParisMetro() {
               disabled={!gameStarted || gameOver}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition disabled:opacity-50"
             >
-              Submit Route
+              Soumettre l'itinéraire
             </button>
             
             {/* Datalist for station autocomplete */}
@@ -1504,32 +1593,41 @@ function ParisMetro() {
       </div>
       
       {/* Instructions */}
-      <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl w-full max-w-4xl text-white">
-        <h2 className="text-2xl font-bold mb-3">How to Play</h2>
-        <p className="mb-3">Find the fastest route between the two highlighted stations on the Paris metro map.</p>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-xl font-bold mb-2">Map Selection Mode:</h3>
-            <ol className="list-decimal list-inside space-y-1">
-              <li>Click on stations to create your route</li>
-              <li>Click a station again to remove it from the end of your route</li>
-              <li>Click "Submit Route" when you're ready</li>
-              <li>The closer your route time is to the optimal time, the higher your score!</li>
-            </ol>
+      {!gameStarted && !gameOver && (
+        <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl w-full max-w-4xl text-white">
+          <h2 className="text-2xl font-bold mb-3">Astuces</h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-blue-900/30 p-4 rounded-lg">
+              <h3 className="text-xl font-bold mb-2 text-blue-300">Mode Sélection sur Carte</h3>
+              <ol className="list-decimal list-inside space-y-2">
+                <li>Cliquez sur les stations pour créer votre itinéraire</li>
+                <li>Cliquez à nouveau sur une station pour la retirer de la fin de votre itinéraire</li>
+                <li>Cliquez sur "Soumettre l'itinéraire" quand vous êtes prêt</li>
+                <li>Plus votre temps de trajet est proche du temps optimal, plus votre score sera élevé !</li>
+              </ol>
+            </div>
+            
+            <div className="bg-purple-900/30 p-4 rounded-lg">
+              <h3 className="text-xl font-bold mb-2 text-purple-300">Progression</h3>
+              <ul className="list-disc list-inside space-y-2">
+                <li>Commencez par le niveau 1 avec des trajets simples</li>
+                <li>Plus vous réussissez bien, plus le niveau augmente</li>
+                <li>Les niveaux supérieurs vous proposeront des défis plus complexes</li>
+                <li>Atteignez le niveau 10 pour devenir un expert du métro parisien !</li>
+              </ul>
+            </div>
           </div>
           
-          <div>
-            <h3 className="text-xl font-bold mb-2">Text Input Mode:</h3>
-            <ol className="list-decimal list-inside space-y-1">
-              <li>Type the names of your starting and ending stations</li>
-              <li>Use the autocomplete to find stations</li>
-              <li>Click "Submit Route" when you're ready</li>
-              <li>The system will evaluate the direct connection between the two stations</li>
-            </ol>
+          <div className="mt-6 bg-yellow-900/30 p-4 rounded-lg">
+            <h3 className="text-xl font-bold mb-2 text-yellow-300">Conseil de Pro</h3>
+            <p>
+              Dans le métro parisien, la route la plus courte n'est pas toujours la plus rapide ! 
+              Tenez compte des correspondances, qui peuvent prendre plus de temps que quelques stations supplémentaires sur une même ligne.
+            </p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
