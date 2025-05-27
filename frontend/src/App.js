@@ -699,7 +699,7 @@ function WhacADeficiency() {
                   onClick={(e) => whackDeficiency(deficiency, e)}
                 >
                   <div className="bg-white rounded-full p-2 shadow-lg">
-                    <div className="text-3xl">{deficiency.type.icon}</div>
+                    <div className="text-4xl">{deficiency.type.icon}</div>
                     <div className="text-xs font-bold">{deficiency.type.name}</div>
                   </div>
                 </div>
