@@ -634,9 +634,15 @@ function WhacADeficiency({ onScoreUpdate }) {
     setGameOver(true);
     setGameStarted(false);
     
+    console.log("Whac-A-Deficiency: Saving score", {
+      game_type: "whac_a_deficiency",
+      score: score,
+      time_taken: gameMode === 'survival' ? survivalLevel * 15 : 60
+    });
+    
     // Sauvegarder le score dans le backend
     try {
-      await axios.post(
+      const response = await axios.post(
         `${API}/scores`, 
         {
           game_type: "whac_a_deficiency",
@@ -650,8 +656,11 @@ function WhacADeficiency({ onScoreUpdate }) {
         }
       );
       
+      console.log("Whac-A-Deficiency: Score saved successfully", response.data);
+      
       // Notifier que le score a été mis à jour
       if (onScoreUpdate) {
+        console.log("Whac-A-Deficiency: Notifying score update");
         onScoreUpdate();
       }
     } catch (error) {
