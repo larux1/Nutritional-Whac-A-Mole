@@ -101,12 +101,30 @@
     width: 300px;
     height: 300px;
   }
+  
+  /* Adjustments for mobile */
+  .whac-deficiency .bg-white {
+    padding: 8px;
+  }
+  
+  .whac-deficiency .text-4xl {
+    font-size: 1.5rem;
+  }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 641px) and (max-width: 1023px) {
   .spaghetti-plate {
     width: 450px;
     height: 450px;
+  }
+  
+  /* Adjustments for tablets */
+  .whac-deficiency .bg-white {
+    padding: 10px;
+  }
+  
+  .whac-deficiency .text-4xl {
+    font-size: 1.75rem;
   }
 }
 
