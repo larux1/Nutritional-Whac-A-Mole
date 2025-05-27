@@ -1669,9 +1669,15 @@ function Highscores({ scoreUpdated }) {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   
+  // Log pour tracer la réception des mises à jour de scores
+  useEffect(() => {
+    console.log("Highscores: scoreUpdated state changed", { scoreUpdated });
+  }, [scoreUpdated]);
+  
   // Fetch highscores and user scores
   useEffect(() => {
     const fetchScores = async () => {
+      console.log("Highscores: Fetching scores for", activeGame);
       setLoading(true);
       try {
         // Fetch highscores for the selected game
@@ -1684,6 +1690,7 @@ function Highscores({ scoreUpdated }) {
           }
         );
         
+        console.log("Highscores: Global highscores received", highscoresResponse.data);
         setHighscores(highscoresResponse.data);
         
         // Fetch user's personal scores
@@ -1701,6 +1708,7 @@ function Highscores({ scoreUpdated }) {
           .filter(score => score.game_type === activeGame)
           .sort((a, b) => b.score - a.score);
         
+        console.log("Highscores: User scores received", filteredScores);
         setUserScores(filteredScores);
       } catch (error) {
         console.error("Error fetching scores:", error);
