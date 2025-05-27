@@ -319,13 +319,14 @@ function Register() {
           </div>
           
           <div className="mb-4">
-            <label className="block text-white mb-1">Email</label>
+            <label className="block text-white mb-1">Email*</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white"
+              required
             />
           </div>
           
