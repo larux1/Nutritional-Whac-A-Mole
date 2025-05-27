@@ -114,15 +114,21 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-purple-900 text-white">
-      <div className="container mx-auto px-4 py-20">
-        <h1 className="text-6xl font-bold text-center mb-8">Welcome to Game Hub</h1>
-        
-        <div className="max-w-3xl mx-auto">
-          <p className="text-xl text-center mb-12">
-            Choose a game and challenge yourself!
+      <div className="container mx-auto px-4 py-12 md:py-20">
+        <div className="flex flex-col items-center mb-10">
+          <img 
+            src="https://www.silamir.com/wp-content/uploads/2024/09/silamir-group-featured-image-1200-630px.jpg" 
+            alt="Silamir Logo" 
+            className="h-16 md:h-20 mb-8"
+          />
+          <h1 className="text-4xl md:text-6xl font-bold text-center mb-4">Welcome to Game Hub</h1>
+          <p className="text-lg md:text-xl text-center max-w-2xl">
+            Choose a game and challenge yourself! Created by Silamir.
           </p>
-          
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+        </div>
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-12">
             {/* Whac-A-Deficiency Game Card */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden transform hover:scale-105 transition-all duration-300">
               <div className="p-6">
