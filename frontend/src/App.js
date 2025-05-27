@@ -983,7 +983,7 @@ function WhacADeficiency({ onScoreUpdate }) {
 }
 
 // Paris Metro Game
-function ParisMetro() {
+function ParisMetro({ onScoreUpdate }) {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [stations, setStations] = useState({});
