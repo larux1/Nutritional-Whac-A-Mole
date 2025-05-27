@@ -649,6 +649,11 @@ function WhacADeficiency({ onScoreUpdate }) {
           }
         }
       );
+      
+      // Notifier que le score a été mis à jour
+      if (onScoreUpdate) {
+        onScoreUpdate();
+      }
     } catch (error) {
       console.error("Error saving score:", error);
     }
