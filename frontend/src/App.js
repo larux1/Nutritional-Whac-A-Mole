@@ -1860,21 +1860,21 @@ function App() {
             <Route path="/whac-a-deficiency" element={
               <RequireAuth>
                 <Navbar />
-                <WhacADeficiency />
+                <WhacADeficiency onScoreUpdate={handleScoreUpdate} />
               </RequireAuth>
             } />
             
             <Route path="/paris-metro" element={
               <RequireAuth>
                 <Navbar />
-                <ParisMetro />
+                <ParisMetro onScoreUpdate={handleScoreUpdate} />
               </RequireAuth>
             } />
             
             <Route path="/highscores" element={
               <RequireAuth>
                 <Navbar />
-                <Highscores />
+                <Highscores scoreUpdated={scoreUpdated} />
               </RequireAuth>
             } />
             
