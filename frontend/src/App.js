@@ -383,7 +383,7 @@ function Navbar() {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img 
-            src="https://i.imgur.com/HMhBRLY.png" 
+            src="https://media.licdn.com/dms/image/v2/D4E0BAQES5jZwk45aew/company-logo_200_200/company-logo_200_200/0/1726477332905/silamir_group_logo?e=2147483647&v=beta&t=QYhKH8OB7r5GX2Or9gxDEPQs_guDAIm5wkWqVEjZOg0" 
             alt="Silamir Logo" 
             className="h-10 mr-2"
           />
