@@ -991,6 +991,10 @@ function ParisMetro() {
   const [inputMethod, setInputMethod] = useState('map');
   const [stationFrom, setStationFrom] = useState('');
   const [stationTo, setStationTo] = useState('');
+  const [level, setLevel] = useState(1);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackType, setFeedbackType] = useState(''); // 'success', 'error', 'info'
   const mapRef = useRef(null);
   
   // Fetch stations from backend
