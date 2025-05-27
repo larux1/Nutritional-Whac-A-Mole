@@ -198,6 +198,7 @@ async def create_score(
 
 @api_router.get("/scores/highscores/{game_type}", response_model=List[Dict[str, Any]])
 async def get_highscores(game_type: str):
+    print(f"Fetching highscores for game type: {game_type}")
     pipeline = [
         {"$match": {"game_type": game_type}},
         {"$sort": {"score": -1}},
@@ -225,6 +226,7 @@ async def get_highscores(game_type: str):
     ]
     
     highscores = await db.scores.aggregate(pipeline).to_list(10)
+    print(f"Found {len(highscores)} highscores")
     return highscores
 
 @api_router.get("/scores/user", response_model=List[GameScore])
