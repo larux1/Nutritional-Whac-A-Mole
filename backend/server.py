@@ -232,39 +232,43 @@ async def get_user_scores(current_user: User = Depends(get_current_user)):
 # Whac-A-Deficiency Game Routes
 @api_router.get("/whac-a-deficiency/deficiencies", response_model=List[WhacDeficiency])
 async def get_deficiencies():
-    # For now, return a hardcoded list of deficiencies
+    # Liste des déficiences nutritionnelles (à taper)
     deficiencies = [
         {
             "id": str(uuid.uuid4()),
             "name": "Calcium",
             "points": 10,
-            "appearance_rate": 0.3,
+            "appearance_rate": 0.2,
             "description": "Essential for bone health",
-            "icon": "🦴"
+            "icon": "🦴",
+            "type": "deficiency"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Vitamin D",
             "points": 15,
-            "appearance_rate": 0.2,
+            "appearance_rate": 0.15,
             "description": "Helps with calcium absorption",
-            "icon": "☁️"
+            "icon": "☁️",
+            "type": "deficiency"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Iron",
             "points": 20,
-            "appearance_rate": 0.2,
+            "appearance_rate": 0.15,
             "description": "Crucial for blood health",
-            "icon": "🔴"
+            "icon": "🔴",
+            "type": "deficiency"
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Magnesium",
             "points": 25,
-            "appearance_rate": 0.15,
+            "appearance_rate": 0.1,
             "description": "Important for muscle function",
-            "icon": "⚡"
+            "icon": "⚡",
+            "type": "deficiency"
         },
         {
             "id": str(uuid.uuid4()),
@@ -272,7 +276,8 @@ async def get_deficiencies():
             "points": 30,
             "appearance_rate": 0.1,
             "description": "Critical for nerve function",
-            "icon": "🧠"
+            "icon": "🧠",
+            "type": "deficiency"
         },
         {
             "id": str(uuid.uuid4()),
@@ -280,7 +285,73 @@ async def get_deficiencies():
             "points": 35,
             "appearance_rate": 0.05,
             "description": "Supports immune system",
-            "icon": "🛡️"
+            "icon": "🛡️",
+            "type": "deficiency"
+        },
+        # Bonus (à taper)
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Bolognaise",
+            "points": 30,
+            "appearance_rate": 0.07,
+            "description": "Délicieuse sauce pour pâtes",
+            "icon": "🍅",
+            "type": "bonus"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Pâtes",
+            "points": 25,
+            "appearance_rate": 0.08,
+            "description": "Base parfaite pour vos spaghetti",
+            "icon": "🍝",
+            "type": "bonus"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Parmesan",
+            "points": 20,
+            "appearance_rate": 0.05,
+            "description": "Fromage qui complète parfaitement les pâtes",
+            "icon": "🧀",
+            "type": "bonus"
+        },
+        # Malus (à éviter)
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Mayonnaise",
+            "points": -20,
+            "appearance_rate": 0.03,
+            "description": "Ne va pas du tout avec les spaghetti!",
+            "icon": "🥚",
+            "type": "malus"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Concombre",
+            "points": -15,
+            "appearance_rate": 0.03,
+            "description": "Pas dans mes spaghetti!",
+            "icon": "🥒",
+            "type": "malus"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Avocat",
+            "points": -25,
+            "appearance_rate": 0.02,
+            "description": "Garde ça pour ton guacamole!",
+            "icon": "🥑",
+            "type": "malus"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Ananas",
+            "points": -30,
+            "appearance_rate": 0.02,
+            "description": "L'hérésie ultime!",
+            "icon": "🍍",
+            "type": "malus"
         }
     ]
     
