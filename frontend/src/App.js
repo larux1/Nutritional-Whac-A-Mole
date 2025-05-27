@@ -1690,7 +1690,7 @@ function Highscores({ scoreUpdated }) {
     };
     
     fetchScores();
-  }, [activeGame, user]);
+  }, [activeGame, user, scoreUpdated]); // Ajout de scoreUpdated comme dépendance
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
