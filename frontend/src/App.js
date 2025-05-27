@@ -1878,7 +1878,11 @@ function App() {
   const [scoreUpdated, setScoreUpdated] = useState(false);
   
   const handleScoreUpdate = () => {
-    setScoreUpdated(prev => !prev); // Toggle pour forcer la mise à jour
+    console.log("App: Score update requested");
+    setScoreUpdated(prev => {
+      console.log("App: Toggling scoreUpdated from", prev, "to", !prev);
+      return !prev;
+    }); // Toggle pour forcer la mise à jour
   };
   return (
     <BrowserRouter>
