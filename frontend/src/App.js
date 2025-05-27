@@ -375,7 +375,14 @@ function Navbar() {
   return (
     <nav className="bg-gray-900 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">Game Hub</Link>
+        <div className="flex items-center gap-3">
+          <img 
+            src="https://www.silamir.com/wp-content/uploads/2024/09/silamir-group-featured-image-1200-630px.jpg" 
+            alt="Silamir Logo" 
+            className="h-10 mr-2"
+          />
+          <Link to="/" className="text-2xl font-bold">Game Hub</Link>
+        </div>
         
         <div className="flex items-center gap-4">
           {user ? (
