@@ -1104,9 +1104,11 @@ function ParisMetro() {
   // Check if the proposed route is valid
   const checkRoute = async (timeUp = false) => {
     if (route.length < 2) {
+      setFeedbackMessage("Votre route doit comporter au moins deux stations!");
+      setFeedbackType("error");
       setResult({
         valid: false,
-        message: "Route must have at least two stations"
+        message: "La route doit avoir au moins deux stations"
       });
       return;
     }
@@ -1119,7 +1121,22 @@ function ParisMetro() {
       
       // If the route is valid, update the score and end the game
       if (response.data.valid) {
-        setScore(response.data.score);
+        const routeScore = response.data.score;
+        setScore(routeScore);
+        
+        // Feedback basé sur le score
+        if (routeScore >= 90) {
+          setFeedbackMessage("Parfait! Votre itinéraire est optimal!");
+          setFeedbackType("success");
+          // Augmenter le niveau si la performance est bonne
+          setLevel(prev => prev + 1);
+        } else if (routeScore >= 70) {
+          setFeedbackMessage("Bien joué! Vous êtes proche de l'optimal!");
+          setFeedbackType("success");
+        } else {
+          setFeedbackMessage("Pas mal, mais il existe un chemin plus rapide!");
+          setFeedbackType("info");
+        }
         
         // Submit score to backend
         try {
@@ -1127,7 +1144,7 @@ function ParisMetro() {
             `${API}/scores`, 
             {
               game_type: "paris_metro",
-              score: response.data.score,
+              score: routeScore,
               time_taken: difficulty === 'easy' ? 45 - timeLeft : 
                          difficulty === 'normal' ? 30 - timeLeft : 
                          20 - timeLeft
@@ -1141,6 +1158,9 @@ function ParisMetro() {
         } catch (error) {
           console.error("Error saving score:", error);
         }
+      } else {
+        setFeedbackMessage("Cette route n'est pas valide. Essayez un autre chemin!");
+        setFeedbackType("error");
       }
       
       // End the game
@@ -1149,9 +1169,11 @@ function ParisMetro() {
       
     } catch (error) {
       console.error("Error checking route:", error);
+      setFeedbackMessage("Erreur lors de la vérification de la route");
+      setFeedbackType("error");
       setResult({
         valid: false,
-        message: "Error checking route"
+        message: "Erreur lors de la vérification de la route"
       });
     }
   };
