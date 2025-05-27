@@ -90,6 +90,7 @@ class WhacDeficiency(BaseModel):
     appearance_rate: float
     description: str
     icon: str
+    type: str = "deficiency"  # "deficiency", "bonus", or "malus"
 
 # Security functions
 def verify_password(plain_password, hashed_password):
