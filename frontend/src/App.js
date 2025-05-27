@@ -117,7 +117,7 @@ function Home() {
       <div className="container mx-auto px-4 py-12 md:py-20">
         <div className="flex flex-col items-center mb-10">
           <img 
-            src="https://i.imgur.com/HMhBRLY.png" 
+            src="https://media.licdn.com/dms/image/v2/D4E0BAQES5jZwk45aew/company-logo_200_200/company-logo_200_200/0/1726477332905/silamir_group_logo?e=2147483647&v=beta&t=QYhKH8OB7r5GX2Or9gxDEPQs_guDAIm5wkWqVEjZOg0" 
             alt="Silamir Logo" 
             className="h-16 md:h-20 mb-8"
           />
