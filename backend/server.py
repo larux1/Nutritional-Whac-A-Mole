@@ -185,13 +185,15 @@ async def create_score(
     score: GameScoreCreate,
     current_user: User = Depends(get_current_user)
 ):
+    print(f"Creating score: {score.dict()} for user: {current_user.username}")
     game_score = GameScore(
         user_id=current_user.id,
         game_type=score.game_type,
         score=score.score,
         time_taken=score.time_taken
     )
-    await db.scores.insert_one(game_score.dict())
+    result = await db.scores.insert_one(game_score.dict())
+    print(f"Score created with ID: {result.inserted_id}")
     return game_score
 
 @api_router.get("/scores/highscores/{game_type}", response_model=List[Dict[str, Any]])
