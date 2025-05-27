@@ -1154,7 +1154,15 @@ function ParisMetro({ onScoreUpdate }) {
         
         // Submit score to backend
         try {
-          await axios.post(
+          console.log("Paris Metro: Saving score", {
+            game_type: "paris_metro",
+            score: routeScore,
+            time_taken: difficulty === 'easy' ? 45 - timeLeft : 
+                       difficulty === 'normal' ? 30 - timeLeft : 
+                       20 - timeLeft
+          });
+          
+          const response = await axios.post(
             `${API}/scores`, 
             {
               game_type: "paris_metro",
@@ -1170,8 +1178,11 @@ function ParisMetro({ onScoreUpdate }) {
             }
           );
           
+          console.log("Paris Metro: Score saved successfully", response.data);
+          
           // Notifier que le score a été mis à jour
           if (onScoreUpdate) {
+            console.log("Paris Metro: Notifying score update");
             onScoreUpdate();
           }
         } catch (error) {
