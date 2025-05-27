@@ -1038,6 +1038,8 @@ function ParisMetro() {
     setRoute([]);
     setScore(0);
     setResult(null);
+    setFeedbackMessage('');
+    setFeedbackType('');
     
     // Set time based on difficulty
     setTimeLeft(
@@ -1046,18 +1048,41 @@ function ParisMetro() {
       20
     );
     
-    // Pick random stations for challenge
+    // Choose stations based on level complexity
     const stationIds = Object.keys(stations);
     if (stationIds.length >= 2) {
-      const station1 = stationIds[Math.floor(Math.random() * stationIds.length)];
+      let station1, station2;
       
-      // Make sure we pick a different second station
-      let station2;
-      do {
-        station2 = stationIds[Math.floor(Math.random() * stationIds.length)];
-      } while (station2 === station1);
+      // For easier levels, choose stations that are closer
+      if (level <= 2) {
+        // Pour les niveaux faciles, choisir des stations proches
+        station1 = stationIds[Math.floor(Math.random() * stationIds.length)];
+        
+        // Trouver des stations connectées directement
+        const directConnections = stations[station1]?.connections || [];
+        if (directConnections.length > 0) {
+          const randomConnection = directConnections[Math.floor(Math.random() * directConnections.length)];
+          station2 = randomConnection.to;
+        } else {
+          // Fallback si pas de connexion directe
+          do {
+            station2 = stationIds[Math.floor(Math.random() * stationIds.length)];
+          } while (station2 === station1);
+        }
+      } else {
+        // Pour les niveaux plus difficiles, choisir des stations éloignées
+        station1 = stationIds[Math.floor(Math.random() * stationIds.length)];
+        
+        do {
+          station2 = stationIds[Math.floor(Math.random() * stationIds.length)];
+        } while (station2 === station1);
+      }
       
       setSelectedStations([station1, station2]);
+      
+      // Afficher un message d'encouragement
+      setFeedbackMessage('Trouvez le chemin le plus rapide entre ces deux stations!');
+      setFeedbackType('info');
     }
   };
   
