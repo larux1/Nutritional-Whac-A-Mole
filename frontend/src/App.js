@@ -731,8 +731,8 @@ function WhacADeficiency() {
         <h3 className="text-xl font-bold mb-2">Deficiencies:</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {deficiencyTypes.map(deficiency => (
-            <div key={deficiency.id} className="bg-white/20 p-3 rounded-lg flex items-center gap-2">
-              <div className="text-2xl">{deficiency.icon}</div>
+            <div key={deficiency.id} className="bg-white/20 p-3 rounded-lg flex items-center gap-3">
+              <div className="text-4xl">{deficiency.icon}</div>
               <div>
                 <div className="font-bold">{deficiency.name}</div>
                 <div className="text-sm opacity-80">{deficiency.points} pts</div>
