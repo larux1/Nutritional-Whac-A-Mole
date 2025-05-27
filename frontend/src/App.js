@@ -1642,7 +1642,7 @@ function ParisMetro({ onScoreUpdate }) {
   );
 }
 
-function Highscores() {
+function Highscores({ scoreUpdated }) {
   const [activeGame, setActiveGame] = useState('whac_a_deficiency');
   const [highscores, setHighscores] = useState([]);
   const [userScores, setUserScores] = useState([]);
