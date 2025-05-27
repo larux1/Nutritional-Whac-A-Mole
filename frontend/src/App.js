@@ -420,7 +420,7 @@ function Navbar() {
 }
 
 // Whac-A-Deficiency Game
-function WhacADeficiency() {
+function WhacADeficiency({ onScoreUpdate }) {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
